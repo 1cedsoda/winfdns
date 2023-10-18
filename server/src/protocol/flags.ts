@@ -23,31 +23,31 @@ export type ResponseCode =
   | "refused";
 
 // Flags
-// qr: 1 bit (0 = query, 1 = response)
+// isResponse: 1 bit (0 = query, 1 = response)
 // opcode: 4 bits (0 = standard query, 1 = inverse query, 2 = server status request)
-// aa: 1 bit (authoritative answer)
-// tc: 1 bit (truncated)
-// rd: 1 bit (recursion desired)
-// ra: 1 bit (recursion available)
+// authoritativeAnswer: 1 bit (authoritative answer)
+// truncated: 1 bit (truncated)
+// recursionDesired: 1 bit (recursion desired)
+// recursionAvailable: 1 bit (recursion available)
 // z: 3 bits (reserved for future use)
 // rcode: 4 bits (0 = no error, 1 = format error, 2 = server failure, 3 = name error, 4 = not implemented, 5 = refused)
 export function decodeFlags(buffer: Buffer): DnsRequestFlags {
   const flags = buffer.readUInt16BE(2);
-  const qr = (flags & 0b1000000000000000) > 0;
+  const isResponse = (flags & 0b1000000000000000) > 0;
   const opcode = (flags & 0b0111100000000000) >> 11;
-  const aa = (flags & 0b0000010000000000) > 0;
-  const tc = (flags & 0b0000001000000000) > 0;
-  const rd = (flags & 0b0000000100000000) > 0;
-  const ra = (flags & 0b0000000010000000) > 0;
+  const authoritativeAnswer = (flags & 0b0000010000000000) > 0;
+  const truncated = (flags & 0b0000001000000000) > 0;
+  const recursionDesired = (flags & 0b0000000100000000) > 0;
+  const recursionAvailable = (flags & 0b0000000010000000) > 0;
   const z = (flags & 0b0000000001110000) >> 4;
   const rcode = flags & 0b0000000000001111;
   return {
-    isResponse: qr,
+    isResponse,
     operation: decodeOpCode(opcode),
-    authoritativeAnswer: aa,
-    truncated: tc,
-    recursionDesired: rd,
-    recursionAvailable: ra,
+    authoritativeAnswer,
+    truncated,
+    recursionDesired,
+    recursionAvailable,
     z,
     responseCode: decodeRCode(rcode),
   };

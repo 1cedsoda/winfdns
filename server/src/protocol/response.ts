@@ -15,7 +15,11 @@ export function encodeDnsResponse(res: DnsResponse): Buffer {
   offset = encodeHeader(res.header, buffer, offset);
   offset = encodeQuestions(res.questions, buffer, offset);
   offset = encodeAnswers(res.answers, buffer, offset);
-  return buffer.slice(0, offset);
+
+  // crop the buffer to the actual size
+  const result = Buffer.alloc(offset);
+  buffer.copy(result, 0, 0, offset);
+  return result;
 }
 
 function encodeHeader(
