@@ -30,7 +30,7 @@ npm run start
 ```
 
 # How to query
-Query `example.com`
+Query TXT records for example.com
 ```bash
-dig @localhost -p 53 example.com
+dig -t txt -p 53 @localhost  example.com
 ```

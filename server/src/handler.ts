@@ -6,7 +6,7 @@ import { ResourceRecord, zones } from "./zone";
 export function handle(req: DnsRequest): DnsResponse {
   const { questions } = req;
   try {
-    const answers = questions.map(handleQuestion);
+    const answers = questions.flatMap(handleQuestion);
     return createDnsResponse(req, answers, "no error");
   } catch (e) {
     console.error(e);
@@ -18,7 +18,8 @@ export function handle(req: DnsRequest): DnsResponse {
   }
 }
 
-export function handleQuestion(question: DnsQuestion): ResourceRecord {
+export function handleQuestion(question: DnsQuestion): ResourceRecord[] {
+  const records = [];
   for (const zone of zones) {
     for (const record of zone.records) {
       if (
@@ -26,9 +27,12 @@ export function handleQuestion(question: DnsQuestion): ResourceRecord {
         record.type === question.type &&
         record.class === question.class
       ) {
-        return record;
+        records.push(record);
       }
     }
+  }
+  if (records.length > 0) {
+    return records;
   }
   throw new RecordNotFound();
 }

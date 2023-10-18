@@ -12,9 +12,6 @@ export function createDnsResponse(
   answersRRs: ResourceRecord[],
   rcode: ResponseCode
 ): DnsResponse {
-  if (answersRRs.length !== req.header.questions) {
-    throw new Error("Number of answers does not match number of questions");
-  }
   return {
     header: {
       ...req.header,

@@ -57,6 +57,14 @@ export function encodeResourceType(type: ResourceType): number {
       return 2;
     case "CNAME":
       return 5;
+    case "SOA":
+      return 6;
+    case "PTR":
+      return 12;
+    case "MX":
+      return 15;
+    case "TXT":
+      return 16;
     default:
       throw new Error(`Unknown question type ${type}`);
   }

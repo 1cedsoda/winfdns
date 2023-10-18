@@ -30,12 +30,29 @@ export const zones: Zone[] = [
   {
     name: "domain example.com",
     records: [
+      // A 1.2.3.4
       {
         type: "A",
         name: "example.com",
         class: "IN",
         ttl: 1,
         data: "1.2.3.4",
+      },
+      // TXT
+      {
+        type: "TXT",
+        name: "example.com",
+        class: "IN",
+        ttl: 1,
+        data: "Hello World",
+      },
+      // TXT
+      {
+        type: "TXT",
+        name: "example.com",
+        class: "IN",
+        ttl: 1,
+        data: "Hello World 2",
       },
     ],
   },
