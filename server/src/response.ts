@@ -20,9 +20,9 @@ export function createDnsResponse(
         ...req.header.flags,
         isResponse: true,
         responseCode: rcode,
+        recursionAvailable: false,
       },
     },
-    questions: req.questions,
     answers: answersRRs,
   };
 }
