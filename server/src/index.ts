@@ -2,7 +2,7 @@
 
 import dgram from "dgram";
 import { debugHex } from "./console.hex";
-import { parseDnsRequest } from "./request";
+import { decodeDnsRequest } from "./protocol";
 
 const server = dgram.createSocket("udp4");
 
@@ -14,7 +14,7 @@ server.on("error", (err) => {
 server.on("message", (msg, rinfo) => {
   // print message in hex
   console.log(debugHex(msg));
-  console.log(parseDnsRequest(msg));
+  console.log(decodeDnsRequest(msg));
   console.log(`server got: ${msg} from ${rinfo.address}:${rinfo.port}`);
 });
 
