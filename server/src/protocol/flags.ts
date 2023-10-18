@@ -1,20 +1,20 @@
 export type DnsRequestFlags = {
-  qr: boolean; // 0 = query, 1 = response
-  opcode: OpCode; // type of query
-  aa: boolean; // authoritative answer
-  tc: boolean; // truncated
-  rd: boolean; // recursion desired
-  ra: boolean; // recursion available
+  isResponse: boolean; // 0 = query, 1 = response
+  operation: Operation; // type of query
+  authoritativeAnswer: boolean; // authoritative answer
+  truncated: boolean; // truncated
+  recursionDesired: boolean; // recursion desired
+  recursionAvailable: boolean; // recursion available
   z: number; // reserved for future use
-  rcode: RCode;
+  responseCode: ResponseCode;
 };
 
-export type OpCode =
+export type Operation =
   | "standard query"
   | "inverse query"
   | "server status request";
 
-export type RCode =
+export type ResponseCode =
   | "no error"
   | "format error"
   | "server failure"
@@ -42,31 +42,31 @@ export function decodeFlags(buffer: Buffer): DnsRequestFlags {
   const z = (flags & 0b0000000001110000) >> 4;
   const rcode = flags & 0b0000000000001111;
   return {
-    qr,
-    opcode: decodeOpCode(opcode),
-    aa,
-    tc,
-    rd,
-    ra,
+    isResponse: qr,
+    operation: decodeOpCode(opcode),
+    authoritativeAnswer: aa,
+    truncated: tc,
+    recursionDesired: rd,
+    recursionAvailable: ra,
     z,
-    rcode: decodeRCode(rcode),
+    responseCode: decodeRCode(rcode),
   };
 }
 
 export function encodeFlags(flags: DnsRequestFlags): number {
   let result = 0;
-  result |= flags.qr ? 1 << 15 : 0;
-  result |= encodeOpCode(flags.opcode) << 11;
-  result |= flags.aa ? 1 << 10 : 0;
-  result |= flags.tc ? 1 << 9 : 0;
-  result |= flags.rd ? 1 << 8 : 0;
-  result |= flags.ra ? 1 << 7 : 0;
+  result |= flags.isResponse ? 1 << 15 : 0;
+  result |= encodeOpCode(flags.operation) << 11;
+  result |= flags.authoritativeAnswer ? 1 << 10 : 0;
+  result |= flags.truncated ? 1 << 9 : 0;
+  result |= flags.recursionDesired ? 1 << 8 : 0;
+  result |= flags.recursionAvailable ? 1 << 7 : 0;
   result |= flags.z << 4;
-  result |= encodeRCode(flags.rcode);
+  result |= encodeRCode(flags.responseCode);
   return result;
 }
 
-export function decodeOpCode(opcode: number): OpCode {
+export function decodeOpCode(opcode: number): Operation {
   switch (opcode) {
     case 0:
       return "standard query";
@@ -79,7 +79,7 @@ export function decodeOpCode(opcode: number): OpCode {
   }
 }
 
-function encodeOpCode(opcode: OpCode): number {
+function encodeOpCode(opcode: Operation): number {
   switch (opcode) {
     case "standard query":
       return 0;
@@ -92,7 +92,7 @@ function encodeOpCode(opcode: OpCode): number {
   }
 }
 
-export function decodeRCode(rcode: number): RCode {
+export function decodeRCode(rcode: number): ResponseCode {
   switch (rcode) {
     case 0:
       return "no error";
@@ -111,7 +111,7 @@ export function decodeRCode(rcode: number): RCode {
   }
 }
 
-function encodeRCode(rcode: RCode): number {
+function encodeRCode(rcode: ResponseCode): number {
   switch (rcode) {
     case "no error":
       return 0;

@@ -1,11 +1,16 @@
 import { ResourceRecord } from "./zone";
-import { RCode, DnsRequest, DnsResponse, encodeDnsResponse } from "./protocol";
+import {
+  ResponseCode,
+  DnsRequest,
+  DnsResponse,
+  encodeDnsResponse,
+} from "./protocol";
 import { RemoteInfo, Socket } from "dgram";
 
 export function createDnsResponse(
   req: DnsRequest,
   answersRRs: ResourceRecord[],
-  rcode: RCode
+  rcode: ResponseCode
 ): DnsResponse {
   if (answersRRs.length !== req.header.questions) {
     throw new Error("Number of answers does not match number of questions");
@@ -16,8 +21,8 @@ export function createDnsResponse(
       answerRRs: answersRRs.length,
       flags: {
         ...req.header.flags,
-        qr: true,
-        rcode,
+        isResponse: true,
+        responseCode: rcode,
       },
     },
     questions: req.questions,
