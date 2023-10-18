@@ -14,13 +14,16 @@ export function createDnsResponse(
 ): DnsResponse {
   return {
     header: {
-      ...req.header,
-      answerRRs: answersRRs.length,
+      transactionId: req.header.transactionId,
       flags: {
         ...req.header.flags,
         isResponse: true,
         responseCode: rcode,
       },
+      questions: req.header.questions,
+      answerRRs: answersRRs.length,
+      authorityRRs: 0,
+      additionalRRs: 0,
     },
     questions: req.questions,
     answers: answersRRs,

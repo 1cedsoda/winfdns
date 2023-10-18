@@ -79,6 +79,7 @@ export function encodeResourceClass(_class: ResourceClass): number {
     case "CH":
       return 3;
     case "HS":
+      return 4;
     default:
       throw new Error(`Unknown question class ${_class}`);
   }
