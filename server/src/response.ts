@@ -1,17 +1,12 @@
 import { ResourceRecord } from "./zone";
-import {
-  ResponseCode,
-  DnsRequest,
-  DnsResponse,
-  encodeDnsResponse,
-} from "./protocol";
+import { ResponseCode, DnsPacket, encodePacket } from "./protocol";
 import { RemoteInfo, Socket } from "dgram";
 
 export function createDnsResponse(
-  req: DnsRequest,
+  req: DnsPacket,
   answersRRs: ResourceRecord[],
   rcode: ResponseCode
-): DnsResponse {
+): DnsPacket {
   return {
     header: {
       transactionId: req.header.transactionId,
@@ -31,11 +26,11 @@ export function createDnsResponse(
 }
 
 export function sendResponse(
-  res: DnsResponse,
+  res: DnsPacket,
   rinfo: RemoteInfo,
   server: Socket
 ) {
-  const buffer = encodeDnsResponse(res);
+  const buffer = encodePacket(res);
   server.send(buffer, rinfo.port, rinfo.address, (err) => {
     if (err) {
       console.error(err);

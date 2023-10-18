@@ -1,19 +1,24 @@
 import { ResourceRecord } from "../zone";
 import { decodeAnswers, encodeAnswers } from "./answer";
-import { decodeHeader, encodeHeader } from "./header";
-import { decodeQuestions, encodeQuestions } from "./question";
-import { DnsRequest } from "./request";
+import { DnsHeader, decodeHeader, encodeHeader } from "./header";
+import { DnsQuestion, decodeQuestions, encodeQuestions } from "./question";
 
-export type DnsResponse = DnsRequest & {
+export type DnsPacket = {
+  header: DnsHeader;
+  questions: DnsQuestion[];
   answers: ResourceRecord[];
 };
 
-export function encodeDnsResponse(res: DnsResponse): Buffer {
+export function encodePacket(res: DnsPacket): Buffer {
   const buffer = Buffer.alloc(512);
   let offset = 0;
   offset = encodeHeader(res.header, buffer, offset);
-  offset = encodeQuestions(res.questions, buffer, offset);
-  offset = encodeAnswers(res.answers, buffer, offset);
+  if (res.header.questions > 0) {
+    offset = encodeQuestions(res.questions, buffer, offset);
+  }
+  if (res.header.answerRRs > 0) {
+    offset = encodeAnswers(res.answers, buffer, offset);
+  }
 
   // crop the buffer to the actual size
   const result = Buffer.alloc(offset);
@@ -21,7 +26,7 @@ export function encodeDnsResponse(res: DnsResponse): Buffer {
   return result;
 }
 
-export function decodeDnsResponse(buffer: Buffer): DnsResponse {
+export function decodePacket(buffer: Buffer): DnsPacket {
   const header = decodeHeader(buffer);
   const questions = decodeQuestions(buffer, header.questions);
   const answers = decodeAnswers(buffer, header.answerRRs);

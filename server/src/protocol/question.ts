@@ -19,6 +19,9 @@ export function decodeQuestions(
   buffer: Buffer,
   questions: number
 ): DnsQuestion[] {
+  if (questions === 0) {
+    return [];
+  }
   let offset = 12;
   const decodedQuestions = [];
   for (let i = 0; i < questions; i++) {

@@ -36,6 +36,9 @@ export function encodeAnswers(
 }
 
 export function decodeAnswers(buffer: Buffer, count: number): ResourceRecord[] {
+  if (count === 0) {
+    return [];
+  }
   const answers: ResourceRecord[] = [];
   let offset = 12;
   for (let i = 0; i < count; i++) {

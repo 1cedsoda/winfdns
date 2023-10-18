@@ -1,9 +1,8 @@
-import { DnsQuestion, DnsResponse } from "./protocol";
-import { DnsRequest } from "./protocol/request";
+import { DnsPacket, DnsQuestion } from "./protocol";
 import { createDnsResponse } from "./response";
 import { ResourceRecord, zones } from "./zone";
 
-export function handle(req: DnsRequest): DnsResponse {
+export function handle(req: DnsPacket): DnsPacket {
   const { questions } = req;
   try {
     const answers = questions.flatMap(handleQuestion);

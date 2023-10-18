@@ -2,10 +2,9 @@
 
 import dgram from "dgram";
 import { debugHex } from "./hex";
-import { decodeDnsRequest, encodeDnsResponse } from "./protocol";
 import { createDnsResponse, sendResponse } from "./response";
 import { handle } from "./handler";
-import { encode } from "punycode";
+import { decodePacket, encodePacket } from "./protocol";
 
 const server = dgram.createSocket("udp4");
 
@@ -18,12 +17,12 @@ server.on("message", (msg, rinfo) => {
   // debugging
   console.log(`===> Request from ${rinfo.address}:${rinfo.port}`);
   console.log(debugHex(msg));
-  console.log(decodeDnsRequest(msg), "\n");
+  console.log(decodePacket(msg), "\n");
 
   // decoding
   let req;
   try {
-    req = decodeDnsRequest(msg);
+    req = decodePacket(msg);
   } catch (e) {
     console.error(e);
     return sendResponse(
@@ -36,7 +35,7 @@ server.on("message", (msg, rinfo) => {
   // handling
   const res = handle(req);
   console.log(`<=== Response to ${rinfo.address}:${rinfo.port}`);
-  console.log(debugHex(encodeDnsResponse(res)));
+  console.log(debugHex(encodePacket(res)));
   console.log(res, "\n");
 
   // send
