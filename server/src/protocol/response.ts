@@ -1,7 +1,6 @@
 import { ResourceRecord } from "../zone";
 import { decodeAnswers, encodeAnswers } from "./answer";
-import { encodeFlags } from "./flags";
-import { DnsHeader, decodeHeader } from "./header";
+import { decodeHeader, encodeHeader } from "./header";
 import { decodeQuestions, encodeQuestions } from "./question";
 import { DnsRequest } from "./request";
 
@@ -20,27 +19,6 @@ export function encodeDnsResponse(res: DnsResponse): Buffer {
   const result = Buffer.alloc(offset);
   buffer.copy(result, 0, 0, offset);
   return result;
-}
-
-function encodeHeader(
-  header: DnsHeader,
-  buffer: Buffer,
-  offset: number
-): number {
-  buffer.writeUInt16BE(header.transactionId, offset);
-  offset += 2;
-  const flags = encodeFlags(header.flags);
-  buffer.writeUInt16BE(flags, offset);
-  offset += 2;
-  buffer.writeUInt16BE(header.questions, offset);
-  offset += 2;
-  buffer.writeUInt16BE(header.answerRRs, offset);
-  offset += 2;
-  buffer.writeUInt16BE(header.authorityRRs, offset);
-  offset += 2;
-  buffer.writeUInt16BE(header.additionalRRs, offset);
-  offset += 2;
-  return offset;
 }
 
 export function decodeDnsResponse(buffer: Buffer): DnsResponse {

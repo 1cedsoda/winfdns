@@ -1,4 +1,4 @@
-import { DnsRequestFlags, decodeFlags } from "./flags";
+import { DnsRequestFlags, decodeFlags, encodeFlags } from "./flags";
 
 export type DnsHeader = {
   transactionId: number;
@@ -24,4 +24,25 @@ export function decodeHeader(buffer: Buffer): DnsHeader {
     authorityRRs,
     additionalRRs,
   };
+}
+
+export function encodeHeader(
+  header: DnsHeader,
+  buffer: Buffer,
+  offset: number
+): number {
+  buffer.writeUInt16BE(header.transactionId, offset);
+  offset += 2;
+  const flags = encodeFlags(header.flags);
+  buffer.writeUInt16BE(flags, offset);
+  offset += 2;
+  buffer.writeUInt16BE(header.questions, offset);
+  offset += 2;
+  buffer.writeUInt16BE(header.answerRRs, offset);
+  offset += 2;
+  buffer.writeUInt16BE(header.authorityRRs, offset);
+  offset += 2;
+  buffer.writeUInt16BE(header.additionalRRs, offset);
+  offset += 2;
+  return offset;
 }
