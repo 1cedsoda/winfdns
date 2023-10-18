@@ -2,12 +2,16 @@
   "scripts": {
     "start": "node dist/src/index.js",
     "build": "tsc",
-    "dev": "nodemon src/index.ts"
+    "dev": "nodemon src/index.ts",
+    "test": "ts-mocha ./{,+\\(test\\|src\\)}/**/*.test.ts --ui bdd"
   },
   "devDependencies": {
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@types/node": "^20.8.7"
+    "@types/node": "^20.8.7",
+    "chai": "^4.3.10",
+    "chai-bytes": "^0.1.2",
+    "mocha": "^10.2.0"
   }
 }

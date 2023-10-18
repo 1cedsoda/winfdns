@@ -1,9 +1,9 @@
 # WinfDNS
 
 ## Dev Setup
-install `ts-node` and `nodemon` globally
+install `ts-node`, `nodemon`, `ts-mocha` and `typescript` globally
 ```bash
-npm install -g ts-node nodemon
+npm install -g ts-node nodemon ts-mocha typescript
 ```
 Then install dependencies
 ```bash
