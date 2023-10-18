@@ -7,19 +7,14 @@ export const debugHex = (data) =>
       ? new TextEncoder().encode(data)
       : new Uint8ClampedArray(data)
   ).reduce(
-    (accumulator, currentValue, currentIndex, array) =>
-      accumulator +
-      (currentIndex % 16 === 0
-        ? currentIndex.toString(16).padStart(6, "0") + "  "
-        : " ") +
-      currentValue.toString(16).padStart(2, "0") +
-      (currentIndex === array.length - 1 || currentIndex % 16 === 15
-        ? " ".repeat((15 - (currentIndex % 16)) * 3) +
-          Array.from(array)
-            .slice(
-              currentIndex - (currentIndex % 16),
-              currentIndex - (currentIndex % 16) + 16
-            )
+    (acc, v, i, arr) =>
+      acc +
+      (i % 16 === 0 ? i.toString(16).padStart(6, "0") + "  " : " ") +
+      v.toString(16).padStart(2, "0") +
+      (i === arr.length - 1 || i % 16 === 15
+        ? " ".repeat((15 - (i % 16)) * 3) +
+          Array.from(arr)
+            .slice(i - (i % 16), i - (i % 16) + 16)
             .reduce(
               (result, value) =>
                 result +

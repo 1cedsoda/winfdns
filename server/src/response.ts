@@ -1,7 +1,6 @@
 import { ResourceRecord } from "./zone";
-import { RCode, DnsRequestFlags, OpCode } from "./protocol/flags";
-import { DnsRequest } from "./protocol/request";
-import { DnsResponse } from "./protocol/response";
+import { RCode, DnsRequest, DnsResponse, encodeDnsResponse } from "./protocol";
+import { RemoteInfo, Socket } from "dgram";
 
 export function createDnsResponse(
   req: DnsRequest,
@@ -24,4 +23,17 @@ export function createDnsResponse(
     questions: req.questions,
     answers: answersRRs,
   };
+}
+
+export function sendResponse(
+  res: DnsResponse,
+  rinfo: RemoteInfo,
+  server: Socket
+) {
+  const buffer = encodeDnsResponse(res);
+  server.send(buffer, rinfo.port, rinfo.address, (err) => {
+    if (err) {
+      console.error(err);
+    }
+  });
 }
