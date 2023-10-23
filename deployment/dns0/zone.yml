@@ -1,0 +1,7 @@
+name: "xyz"
+records:
+  - name: "example.com"
+    type: "A"
+    class: "IN"
+    ttl: 300
+    data: "1.2.3.4"

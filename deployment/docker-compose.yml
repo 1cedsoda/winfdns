@@ -1,0 +1,12 @@
+version: "3.7"
+services:
+  dns0:
+    build:
+      context: ../
+      dockerfile: deployment/Dockerfile
+    ports:
+      - "53:53"
+    environment:
+      - ZONE_DIR=/app/zones
+    volumes:
+      - ./dns0:/app/zones

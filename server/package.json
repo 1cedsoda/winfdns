@@ -6,12 +6,14 @@
     "test": "ts-mocha ./{,+\\(test\\|src\\)}/**/*.test.ts --ui bdd"
   },
   "devDependencies": {
-    "typescript": "^5.2.2"
-  },
-  "dependencies": {
     "@types/node": "^20.8.7",
     "chai": "^4.3.10",
     "chai-bytes": "^0.1.2",
-    "mocha": "^10.2.0"
+    "mocha": "^10.2.0",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "@types/chai": "^4.3.9",
+    "yaml": "^2.3.3"
   }
 }

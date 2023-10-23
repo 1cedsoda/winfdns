@@ -5,6 +5,7 @@ import { debugHex } from "./hex";
 import { createDnsResponse, sendResponse } from "./response";
 import { handle } from "./handler";
 import { decodePacket, encodePacket } from "./protocol";
+import { Zones } from "./zone";
 
 const server = dgram.createSocket("udp4");
 
@@ -48,3 +49,6 @@ server.on("listening", () => {
 });
 
 server.bind(53);
+
+// load zones
+Zones.getInstance();

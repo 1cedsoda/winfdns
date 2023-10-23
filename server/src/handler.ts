@@ -1,6 +1,6 @@
 import { DnsPacket, DnsQuestion } from "./protocol";
 import { createDnsResponse } from "./response";
-import { ResourceRecord, zones } from "./zone";
+import { ResourceRecord, Zones } from "./zone";
 
 export function handle(req: DnsPacket): DnsPacket {
   const { questions } = req;
@@ -19,7 +19,7 @@ export function handle(req: DnsPacket): DnsPacket {
 
 export function handleQuestion(question: DnsQuestion): ResourceRecord[] {
   const records = [];
-  for (const zone of zones) {
+  for (const zone of Zones.getZones()) {
     for (const record of zone.records) {
       if (
         record.name === question.name &&
