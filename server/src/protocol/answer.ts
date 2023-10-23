@@ -1,3 +1,4 @@
+import { off } from "process";
 import { ResourceRecord } from "../zone";
 import { decodeName, encodeName } from "./name";
 import {
@@ -6,6 +7,7 @@ import {
   decodeResourceType,
   decodeResourceClass,
 } from "./resource_record";
+import { encodeIpv4 } from "./ipv4";
 
 export function encodeAnswers(
   answers: ResourceRecord[],
@@ -20,18 +22,34 @@ export function encodeAnswers(
     offset += 2;
     buffer.writeUInt32BE(answer.ttl, offset);
     offset += 4;
-    if (answer.type === "TXT") {
-      // TXT records have a extra 1-byte length prefix
-      buffer.writeUInt16BE(answer.data.length + 1, offset);
-      offset += 2;
-      buffer.writeUInt8(answer.data.length, offset);
-      offset += 1;
-    } else {
-      buffer.writeUInt16BE(answer.data.length, offset);
-      offset += 2;
-    }
-    offset += buffer.write(answer.data, offset, "ascii");
+    if (answer.type === "TXT")
+      offset = encodeTxtData(answer.data, buffer, offset);
+    else if (answer.type === "A")
+      offset = encodeAData(answer.data, buffer, offset);
+    else throw new Error(`Unsupported answer type: ${answer.type}`);
   }
+  return offset;
+}
+
+function encodeTxtData(data: string, buffer: Buffer, offset: number): number {
+  // Data size
+  buffer.writeUInt16BE(data.length + 1, offset);
+  offset += 2;
+  // Txt size
+  buffer.writeUInt8(data.length, offset);
+  offset += 1;
+  // Txt data
+  buffer.write(data, offset, "ascii");
+  offset += data.length;
+  return offset;
+}
+
+function encodeAData(data: string, buffer: Buffer, offset: number): number {
+  // Data size
+  buffer.writeUInt16BE(4, offset);
+  offset += 2;
+  // ipv4
+  offset = encodeIpv4(data, buffer, offset);
   return offset;
 }
 
