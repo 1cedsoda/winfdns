@@ -36,10 +36,27 @@ export function encodePacket(res: DnsPacket): Buffer {
 
 export function decodePacket(buffer: Buffer): DnsPacket {
   const header = decodeHeader(buffer);
-  const questions = decodeQuestions(buffer, header.questions);
-  const answerRRs = decodeResourceRecords(buffer, header.answerRRs);
-  const authorityRRs = decodeResourceRecords(buffer, header.authorityRRs);
-  const additionalRRs = decodeResourceRecords(buffer, header.additionalRRs);
+  let offsetQuestions = 12;
+  const [questions, offsetAnswerRRs] = decodeQuestions(
+    buffer,
+    header.questions,
+    offsetQuestions
+  );
+  const [answerRRs, offsetAuthorityRRs] = decodeResourceRecords(
+    buffer,
+    header.answerRRs,
+    offsetAnswerRRs
+  );
+  const [authorityRRs, offsetAdditionalRRs] = decodeResourceRecords(
+    buffer,
+    header.authorityRRs,
+    offsetAuthorityRRs
+  );
+  const [additionalRRs] = decodeResourceRecords(
+    buffer,
+    header.additionalRRs,
+    offsetAdditionalRRs
+  );
 
   return { header, questions, answerRRs, authorityRRs, additionalRRs };
 }

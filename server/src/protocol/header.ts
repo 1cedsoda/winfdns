@@ -1,8 +1,8 @@
-import { DnsRequestFlags, decodeFlags, encodeFlags } from "./flags";
+import { DnsFlags, decodeFlags, encodeFlags } from "./flags";
 
 export type DnsHeader = {
   transactionId: number;
-  flags: DnsRequestFlags;
+  flags: DnsFlags;
   questions: number;
   answerRRs: number;
   authorityRRs: number;

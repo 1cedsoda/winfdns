@@ -1,4 +1,4 @@
-export type DnsRequestFlags = {
+export type DnsFlags = {
   isResponse: boolean; // 0 = query, 1 = response
   operation: Operation; // type of query
   authoritativeAnswer: boolean; // authoritative answer
@@ -31,7 +31,7 @@ export type ResponseCode =
 // recursionAvailable: 1 bit (recursion available)
 // z: 3 bits (reserved for future use)
 // rcode: 4 bits (0 = no error, 1 = format error, 2 = server failure, 3 = name error, 4 = not implemented, 5 = refused)
-export function decodeFlags(buffer: Buffer): DnsRequestFlags {
+export function decodeFlags(buffer: Buffer): DnsFlags {
   const flags = buffer.readUInt16BE(2);
   const isResponse = (flags & 0b1000000000000000) > 0;
   const opcode = (flags & 0b0111100000000000) >> 11;
@@ -53,7 +53,7 @@ export function decodeFlags(buffer: Buffer): DnsRequestFlags {
   };
 }
 
-export function encodeFlags(flags: DnsRequestFlags): number {
+export function encodeFlags(flags: DnsFlags): number {
   let result = 0;
   result |= flags.isResponse ? 1 << 15 : 0;
   result |= encodeOpCode(flags.operation) << 11;

@@ -1,6 +1,5 @@
 import { decodeName, encodeName, encodedNameBytes } from "./name";
 import { encodeIpv4 } from "./ipv4";
-import { debugHex } from "../hex";
 
 export function encodeResourceRecords(
   resourceRecords: ResourceRecord[],
@@ -39,6 +38,19 @@ function encodeDataTXT(data: string, buffer: Buffer, offset: number): number {
   return offset;
 }
 
+function decodeDataTXT(
+  buffer: Buffer,
+  offset: number
+): [string, offset: number] {
+  const dataLength = buffer.readUInt8(offset);
+  offset += 2;
+  const txtLength = buffer.readUInt8(offset);
+  offset += 1;
+  const txt = buffer.toString("ascii", offset, offset + txtLength);
+  offset += txtLength;
+  return [txt, offset];
+}
+
 function encodeDataA(data: string, buffer: Buffer, offset: number): number {
   // Data size
   buffer.writeUInt16BE(4, offset);
@@ -46,6 +58,17 @@ function encodeDataA(data: string, buffer: Buffer, offset: number): number {
   // ipv4
   offset = encodeIpv4(data, buffer, offset);
   return offset;
+}
+
+function decodeDataA(buffer: Buffer, offset: number): [string, offset: number] {
+  const ip = [
+    buffer.readUInt8(offset),
+    buffer.readUInt8(offset + 1),
+    buffer.readUInt8(offset + 2),
+    buffer.readUInt8(offset + 3),
+  ].join(".");
+  offset += 4;
+  return [ip, offset];
 }
 
 function encodeDataNS(data: string, buffer: Buffer, offset: number): number {
@@ -59,18 +82,28 @@ function encodeDataNS(data: string, buffer: Buffer, offset: number): number {
   return offset;
 }
 
+function decodeDataNS(
+  buffer: Buffer,
+  offset: number
+): [string, offset: number] {
+  const length = buffer.readUInt16BE(offset);
+  offset += 2;
+  const [name, offset_after] = decodeName(buffer, offset);
+  return [name, offset_after];
+}
+
 export function decodeResourceRecords(
   buffer: Buffer,
-  count: number
-): ResourceRecord[] {
+  count: number,
+  offset: number
+): [ResourceRecord[], offset: number] {
   if (count === 0) {
-    return [];
+    return [[], offset];
   }
   const answers: ResourceRecord[] = [];
-  let offset = 12;
   for (let i = 0; i < count; i++) {
-    const name = decodeName(buffer, offset);
-    offset += name.length + 2;
+    const [name, offset_after_name] = decodeName(buffer, offset);
+    offset = offset_after_name;
     const type = decodeResourceType(buffer.readUInt16BE(offset));
     offset += 2;
     const cls = decodeResourceClass(buffer.readUInt16BE(offset));
@@ -79,14 +112,11 @@ export function decodeResourceRecords(
     offset += 4;
     const length = buffer.readUInt16BE(offset);
     offset += 2;
-    let data = "";
-    if (type === "TXT") {
-      // TXT records have a extra 1-byte length prefix
-      offset += 1;
-      data = buffer.toString("ascii", offset, offset + length - 1);
-    } else {
-      data = buffer.toString("ascii", offset, offset + length);
-    }
+    let data: string;
+    if (type === "TXT") [data, offset] = decodeDataTXT(buffer, offset);
+    else if (type === "A") [data, offset] = decodeDataA(buffer, offset);
+    else if (type === "NS") [data, offset] = decodeDataNS(buffer, offset);
+    else throw new Error(`Unsupported answer type: ${type}`);
     offset += length;
     answers.push({
       name,
@@ -96,7 +126,7 @@ export function decodeResourceRecords(
       data,
     });
   }
-  return answers;
+  return [answers, offset];
 }
 
 export type ResourceRecords = {
