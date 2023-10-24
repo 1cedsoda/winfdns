@@ -4,7 +4,7 @@ import dgram from "dgram";
 import { debugHex } from "./hex";
 import { createDnsResponse, sendResponse } from "./response";
 import { handle } from "./handler";
-import { decodePacket, encodePacket } from "./protocol";
+import { decodePacket, emptyResourceRecords, encodePacket } from "./protocol";
 import { Zones } from "./zone";
 
 const server = dgram.createSocket("udp4");
@@ -27,7 +27,7 @@ server.on("message", (msg, rinfo) => {
   } catch (e) {
     console.error(e);
     return sendResponse(
-      createDnsResponse(req, [], "format error"),
+      createDnsResponse(req, emptyResourceRecords, "format error"),
       rinfo,
       server
     );

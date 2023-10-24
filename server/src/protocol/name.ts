@@ -1,7 +1,4 @@
-export function decodeName(
-  buffer: Buffer,
-  offset: number
-): string {
+export function decodeName(buffer: Buffer, offset: number): string {
   let name = "";
   let length = buffer.readUInt8(offset);
   while (length > 0) {
@@ -29,4 +26,13 @@ export function encodeName(
   buffer.writeUInt8(0, offset);
   offset += 1;
   return offset;
+}
+
+export function encodedNameBytes(name: string): number {
+  let bytes = 1; // 00 byte
+  const labels = name.split(".");
+  for (const label of labels) {
+    bytes += label.length + 1; // label length byte + ascii bytes
+  }
+  return bytes;
 }

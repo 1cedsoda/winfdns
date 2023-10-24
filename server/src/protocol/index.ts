@@ -1,4 +1,3 @@
-export * from "./answer";
 export * from "./flags";
 export * from "./header";
 export * from "./name";

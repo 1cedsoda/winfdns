@@ -1,18 +1,10 @@
 import YAML from "yaml";
-import { fstat, readFileSync, readdirSync, writeFileSync } from "fs";
-import { ResourceClass, ResourceType } from "./protocol/resource_record";
+import { readFileSync, readdirSync, writeFileSync } from "fs";
+import { ResourceRecord } from "./protocol/resource_record";
 
 export type Zone = {
   name: string;
   records: ResourceRecord[];
-};
-
-export type ResourceRecord = {
-  name: string;
-  type: ResourceType;
-  class: ResourceClass;
-  ttl: number;
-  data: string;
 };
 
 export function readZoneYamlDir(path: string): Zone[] {
@@ -67,6 +59,27 @@ export const default_zones: Zone[] = [
       },
     ],
   },
+  {
+    name: "root DNS",
+    records: [
+      // NS
+      {
+        type: "NS",
+        name: "com",
+        class: "IN",
+        ttl: 1,
+        data: "ns1.com",
+      },
+      // A
+      {
+        type: "A",
+        name: "ns1.com",
+        class: "IN",
+        ttl: 1,
+        data: "1.2.3.4",
+      },
+    ],
+  },
 ];
 
 export class Zones {
@@ -100,5 +113,19 @@ export class Zones {
 
   public static getZones(): Zone[] {
     return Zones.getInstance().zones;
+  }
+
+  public static filter(
+    callback: (record: ResourceRecord) => boolean
+  ): ResourceRecord[] {
+    const found: ResourceRecord[] = [];
+    Zones.getZones().forEach((zone) => {
+      for (const rr of zone.records) {
+        if (callback(rr)) {
+          found.push(rr);
+        }
+      }
+    });
+    return found;
   }
 }

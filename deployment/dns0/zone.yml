@@ -1,6 +1,11 @@
 name: "xyz"
 records:
-  - name: "example.com"
+  - name: "com"
+    type: "NS"
+    class: "IN"
+    ttl: 300
+    data: "ns1.com"
+  - name: "com"
     type: "A"
     class: "IN"
     ttl: 300

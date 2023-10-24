@@ -1,10 +1,14 @@
-import { ResourceRecord } from "./zone";
-import { ResponseCode, DnsPacket, encodePacket } from "./protocol";
+import {
+  ResponseCode,
+  DnsPacket,
+  encodePacket,
+  ResourceRecords,
+} from "./protocol";
 import { RemoteInfo, Socket } from "dgram";
 
 export function createDnsResponse(
   req: DnsPacket,
-  answersRRs: ResourceRecord[],
+  resourceRecords: ResourceRecords,
   rcode: ResponseCode
 ): DnsPacket {
   return {
@@ -16,12 +20,14 @@ export function createDnsResponse(
         responseCode: rcode,
       },
       questions: req.header.questions,
-      answerRRs: answersRRs.length,
-      authorityRRs: 0,
-      additionalRRs: 0,
+      answerRRs: resourceRecords.answerRRs.length,
+      authorityRRs: resourceRecords.authorityRRs.length,
+      additionalRRs: resourceRecords.additionalRRs.length,
     },
     questions: req.questions,
-    answers: answersRRs,
+    answerRRs: resourceRecords.answerRRs,
+    authorityRRs: resourceRecords.authorityRRs,
+    additionalRRs: resourceRecords.additionalRRs,
   };
 }
 
