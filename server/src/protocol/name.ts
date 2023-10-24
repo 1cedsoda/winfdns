@@ -1,4 +1,13 @@
-export function decodeName(buffer: Buffer, offset: number): string {
+export function decodeName(buffer: Buffer, offset: number): [string, number] {
+  // check if compression is used
+  const firstByte = buffer.readUInt8(offset);
+  if ((firstByte & 0xc0) === 0xc0) {
+    const pointer = buffer.readUInt16BE(offset) & 0x3fff;
+    const [name, _] = decodeName(buffer, pointer);
+    return [name, offset + 2];
+  }
+
+  // no compression
   let name = "";
   let length = buffer.readUInt8(offset);
   while (length > 0) {
@@ -9,7 +18,7 @@ export function decodeName(buffer: Buffer, offset: number): string {
     offset += 1 + length;
     length = buffer.readUInt8(offset);
   }
-  return name;
+  return [name, offset + 1];
 }
 
 export function encodeName(
