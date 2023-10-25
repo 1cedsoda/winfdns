@@ -1,4 +1,4 @@
-import { decodeName, encodeName } from "./name";
+import { UsedNames, decodeName, encodeName } from "./name";
 import {
   decodeResourceType,
   decodeResourceClass,
@@ -54,10 +54,11 @@ function decodeQuestion(
 export function encodeQuestions(
   questions: DnsQuestion[],
   buffer: Buffer,
-  offset: number
+  offset: number,
+  usedNames: UsedNames
 ): number {
   for (const question of questions) {
-    offset = encodeName(question.name, buffer, offset);
+    offset = encodeName(question.name, buffer, offset, usedNames);
     buffer.writeUInt16BE(encodeResourceType(question.type), offset);
     offset += 2;
     buffer.writeUInt16BE(encodeResourceClass(question.class), offset);

@@ -1,13 +1,14 @@
-import { decodeName, encodeName, encodedNameBytes } from "./name";
+import { UsedNames, decodeName, encodeName, encodedNameBytes } from "./name";
 import { encodeIpv4 } from "./ipv4";
 
 export function encodeResourceRecords(
   resourceRecords: ResourceRecord[],
   buffer: Buffer,
-  offset: number
+  offset: number,
+  usedNames: UsedNames
 ): number {
   for (const answer of resourceRecords) {
-    offset = encodeName(answer.name, buffer, offset);
+    offset = encodeName(answer.name, buffer, offset, usedNames);
     buffer.writeUInt16BE(encodeResourceType(answer.type), offset);
     offset += 2;
     buffer.writeUInt16BE(encodeResourceClass(answer.class), offset);
@@ -19,7 +20,7 @@ export function encodeResourceRecords(
     else if (answer.type === "A")
       offset = encodeDataA(answer.data, buffer, offset);
     else if (answer.type === "NS")
-      offset = encodeDataNS(answer.data, buffer, offset);
+      offset = encodeDataNS(answer.data, buffer, offset, usedNames);
     else throw new Error(`Unsupported answer type: ${answer.type}`);
   }
   return offset;
@@ -71,11 +72,16 @@ function decodeDataA(buffer: Buffer, offset: number): [string, offset: number] {
   return [ip, offset];
 }
 
-function encodeDataNS(data: string, buffer: Buffer, offset: number): number {
+function encodeDataNS(
+  data: string,
+  buffer: Buffer,
+  offset: number,
+  usedNames: UsedNames
+): number {
   // Space for Data size
   offset += 2;
   // Write name
-  offset = encodeName(data, buffer, offset);
+  offset = encodeName(data, buffer, offset, usedNames);
   // Write data size
   const nameBytes = encodedNameBytes(data);
   buffer.writeUInt16BE(nameBytes, offset - nameBytes - 2);
