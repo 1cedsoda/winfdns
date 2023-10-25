@@ -106,13 +106,14 @@ export function decodeResourceRecords(
   if (count === 0) {
     return [[], offset];
   }
-  const answers: ResourceRecord[] = [];
+  const rr: ResourceRecord[] = [];
   for (let i = 0; i < count; i++) {
     const [name, offset_after_name] = decodeName(buffer, offset);
     offset = offset_after_name;
     const type = decodeResourceType(buffer.readUInt16BE(offset));
     offset += 2;
-    const cls = decodeResourceClass(buffer.readUInt16BE(offset));
+    const cls =
+      type == "OPT" ? null : decodeResourceClass(buffer.readUInt16BE(offset));
     offset += 2;
     const ttl = buffer.readUInt32BE(offset);
     offset += 4;
@@ -122,9 +123,9 @@ export function decodeResourceRecords(
     if (type === "TXT") [data, offset] = decodeDataTXT(buffer, offset);
     else if (type === "A") [data, offset] = decodeDataA(buffer, offset);
     else if (type === "NS") [data, offset] = decodeDataNS(buffer, offset);
-    else throw new Error(`Unsupported answer type: ${type}`);
+    else console.log(`Unsupported RR type: ${type}`);
     offset += length;
-    answers.push({
+    rr.push({
       name,
       type,
       class: cls,
@@ -132,7 +133,7 @@ export function decodeResourceRecords(
       data,
     });
   }
-  return [answers, offset];
+  return [rr, offset];
 }
 
 export type ResourceRecords = {
@@ -150,7 +151,7 @@ export const emptyResourceRecords: ResourceRecords = {
 export type ResourceRecord = {
   name: string;
   type: ResourceType;
-  class: ResourceClass;
+  class: ResourceClass | null;
   ttl: number;
   data: string;
 };
@@ -170,7 +171,15 @@ export function mergeResourceRecods(a: ResourceRecords, b: ResourceRecords) {
 // PTR = domain name pointer
 // MX = mail exchange
 // TXT = text strings
-export type ResourceType = "A" | "NS" | "CNAME" | "SOA" | "PTR" | "MX" | "TXT";
+export type ResourceType =
+  | "A"
+  | "NS"
+  | "CNAME"
+  | "SOA"
+  | "PTR"
+  | "MX"
+  | "TXT"
+  | "OPT";
 
 // IN = internet
 // CS = CSNET (obsolete)
@@ -194,6 +203,8 @@ export function decodeResourceType(type: number): ResourceType {
       return "MX";
     case 16:
       return "TXT";
+    case 41:
+      return "OPT";
     default:
       throw new Error(`Unknown question type ${type}`);
   }
@@ -230,6 +241,8 @@ export function encodeResourceType(type: ResourceType): number {
       return 15;
     case "TXT":
       return 16;
+    case "OPT":
+      return 41;
     default:
       throw new Error(`Unknown question type ${type}`);
   }
