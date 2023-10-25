@@ -64,6 +64,7 @@ export function encodeName(
 
     // check if we can use a compression pointer
     if (remainingName in usedNames) {
+      console.log("found", remainingName, "in pointer cache");
       const compressionPointer = usedNames[remainingName];
       buffer.writeUInt16BE(0xc000 | compressionPointer, offset);
       offset += 2;
@@ -75,25 +76,15 @@ export function encodeName(
     }
 
     // write label length
-    const len = buffer.write(label, offset + 1);
-    buffer.writeUInt8(len, offset);
+    buffer.writeUInt8(label.length, offset);
     offset += 1;
 
     // write label
     buffer.write(label, offset);
-    offset += len;
+    offset += label.length;
   }
   // write end of name
   buffer.writeUInt8(0, offset);
   offset += 1;
   return offset;
-}
-
-export function encodedNameBytes(name: string): number {
-  let bytes = 1; // 00 byte
-  const labels = name.split(".");
-  for (const label of labels) {
-    bytes += label.length + 1; // label length byte + ascii bytes
-  }
-  return bytes;
 }

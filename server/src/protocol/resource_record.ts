@@ -1,4 +1,4 @@
-import { UsedNames, decodeName, encodeName, encodedNameBytes } from "./name";
+import { UsedNames, decodeName, encodeName } from "./name";
 import { encodeIpv4 } from "./ipv4";
 
 export function encodeResourceRecords(
@@ -79,12 +79,14 @@ function encodeDataNS(
   usedNames: UsedNames
 ): number {
   // Space for Data size
+  const dataSizeOffset = offset;
   offset += 2;
   // Write name
+  const offsetBefore = offset;
   offset = encodeName(data, buffer, offset, usedNames);
+  const nameLength = offset - offsetBefore;
   // Write data size
-  const nameBytes = encodedNameBytes(data);
-  buffer.writeUInt16BE(nameBytes, offset - nameBytes - 2);
+  buffer.writeUInt16BE(nameLength, dataSizeOffset);
   return offset;
 }
 

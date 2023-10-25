@@ -38,7 +38,7 @@ export const default_zones: Zone[] = [
         type: "A",
         name: "example.com",
         class: "IN",
-        ttl: 1,
+        ttl: 17,
         data: "1.2.3.4",
       },
       // TXT
@@ -46,7 +46,7 @@ export const default_zones: Zone[] = [
         type: "TXT",
         name: "example.com",
         class: "IN",
-        ttl: 1,
+        ttl: 17,
         data: "Hello World",
       },
       // TXT
@@ -54,7 +54,7 @@ export const default_zones: Zone[] = [
         type: "TXT",
         name: "example.com",
         class: "IN",
-        ttl: 1,
+        ttl: 17,
         data: "Hello World 2",
       },
     ],
@@ -67,16 +67,48 @@ export const default_zones: Zone[] = [
         type: "NS",
         name: "com",
         class: "IN",
-        ttl: 1,
+        ttl: 17,
         data: "ns1.com",
+      },
+      // NS
+      {
+        type: "NS",
+        name: "com",
+        class: "IN",
+        ttl: 17,
+        data: "ns2.com",
+      },
+      // NS
+      {
+        type: "NS",
+        name: "com",
+        class: "IN",
+        ttl: 17,
+        data: "ns3.com",
       },
       // A
       {
         type: "A",
         name: "ns1.com",
         class: "IN",
-        ttl: 1,
+        ttl: 17,
         data: "1.2.3.4",
+      },
+      // A
+      {
+        type: "A",
+        name: "ns2.com",
+        class: "IN",
+        ttl: 17,
+        data: "1.2.3.5",
+      },
+      // A
+      {
+        type: "A",
+        name: "ns3.com",
+        class: "IN",
+        ttl: 17,
+        data: "1.2.3.6",
       },
     ],
   },
