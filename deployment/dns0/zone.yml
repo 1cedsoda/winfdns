@@ -5,7 +5,7 @@ records:
     class: "IN"
     ttl: 300
     data: "ns1.com"
-  - name: "com"
+  - name: "ns1.com"
     type: "A"
     class: "IN"
     ttl: 300
