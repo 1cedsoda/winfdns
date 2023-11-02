@@ -1,22 +1,26 @@
+import { lookupQuestionRecursive } from "./lookup";
 import {
   DnsPacket,
   DnsQuestion,
   ResourceRecord,
   ResourceRecords,
+  ResourceType,
   emptyResourceRecords,
   mergeResourceRecods,
 } from "./protocol";
-import { createDnsResponse } from "./response";
+import { createDnsResponse, recursionAvailable } from "./response";
 import { Zones } from "./zone";
 
-export function handle(req: DnsPacket): DnsPacket {
+export async function handle(req: DnsPacket): Promise<DnsPacket> {
   const { questions } = req;
   try {
-    const answers = questions
-      .map((question) => {
-        return handleQuestion(question);
-      })
-      .reduce((prev, curr) => mergeResourceRecods(prev, curr));
+    const answers = (
+      await Promise.all(
+        questions.map(async (question) => {
+          return await handleQuestion(question);
+        })
+      )
+    ).reduce((prev, curr) => mergeResourceRecods(prev, curr));
     return createDnsResponse(req, answers, "no error");
   } catch (e) {
     console.error(e);
@@ -28,10 +32,14 @@ export function handle(req: DnsPacket): DnsPacket {
   }
 }
 
-export function handleQuestion(question: DnsQuestion): ResourceRecords {
+export async function handleQuestion(
+  question: DnsQuestion
+): Promise<ResourceRecords> {
   // TODO: try cache
   // find answers
-  const answerRRs = findAnswers(question);
+  const answerRRs = recursionAvailable
+    ? findAnswers(question)
+    : await lookupQuestionRecursive(question);
   // if no answers, find authorities
   const authorityRRs = answerRRs.length == 0 ? findAuthorities(question) : [];
   // try to add A records for NS records
@@ -105,4 +113,32 @@ class RecordNotFound extends Error {
   constructor() {
     super("Record not found");
   }
+}
+
+export function filterRRs(
+  resourceRecords: ResourceRecord[],
+  name?: string | undefined,
+  type?: ResourceType | undefined,
+  class_?: string | undefined
+): ResourceRecord[] {
+  return resourceRecords.filter((rr) => {
+    return (
+      (name === undefined || rr.name === name) &&
+      (type === undefined || rr.type === type) &&
+      (class_ === undefined || rr.class === class_)
+    );
+  });
+}
+
+export function findRR(
+  resourceRecords: ResourceRecord[],
+  name?: string | undefined,
+  type?: ResourceType | undefined,
+  class_?: string | undefined
+): ResourceRecord | undefined {
+  const res = filterRRs(resourceRecords, name, type, class_);
+  if (res.length == 0) {
+    return undefined;
+  }
+  return res[0];
 }

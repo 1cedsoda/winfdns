@@ -1,6 +1,9 @@
 version: "3.7"
+name: dns
+
 services:
-  dns0:
+  # DNS-Resolver
+  dns-resolver:
     build:
       context: ../
       dockerfile: deployment/Dockerfile
@@ -8,5 +11,57 @@ services:
       - "53:53"
     environment:
       - ZONE_DIR=/app/zones
+      - ROOT_DNS=10.5.0.3
+      - RECURSION_AVAILABLE=false
     volumes:
-      - ./dns0:/app/zones
+      - ./dns-resolver:/app/zones
+
+    networks:
+      dns:
+        ipv4_address: "10.5.0.3"
+
+  # DNS Root
+  dns-root:
+    build:
+      context: ../
+      dockerfile: deployment/Dockerfile
+    environment:
+      - ZONE_DIR=/app/zones
+    volumes:
+      - ./dns-root:/app/zones
+    networks:
+      dns:
+        ipv4_address: "10.5.0.3"
+
+  # DNS .dhsh
+  dns-dhsh:
+    build:
+      context: ../
+      dockerfile: deployment/Dockerfile
+    environment:
+      - ZONE_DIR=/app/zones
+    volumes:
+      - ./dns-dhsh:/app/zones
+    networks:
+      dns:
+        ipv4_address: "10.5.0.4"
+
+  # DNS university.dhsh
+  dns-dhsh-university:
+    build:
+      context: ../
+      dockerfile: deployment/Dockerfile
+    environment:
+      - ZONE_DIR=/app/zones
+    volumes:
+      - ./dns-dhsh-university:/app/zones
+    networks:
+      dns:
+        ipv4_address: "10.5.0.5"
+
+networks:
+  dns:
+    driver: ipvlan
+    ipam:
+      config:
+        - subnet: "10.5.0.0/16"

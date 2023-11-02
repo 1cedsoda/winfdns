@@ -1,0 +1,12 @@
+name: "dns-dhsh"
+records:
+  - name: "university.dhsh"
+    type: "NS"
+    class: "IN"
+    ttl: 300
+    data: "dns-dhsh-university"
+  - name: "dns-dhsh-university"
+    type: "A"
+    class: "IN"
+    ttl: 300
+    data: "10.0.0.4"

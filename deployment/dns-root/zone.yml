@@ -1,0 +1,12 @@
+name: "dns-root"
+records:
+  - name: "dhsh"
+    type: "NS"
+    class: "IN"
+    ttl: 300
+    data: "dns-dhsh"
+  - name: "dns-dhsh"
+    type: "A"
+    class: "IN"
+    ttl: 300
+    data: "10.0.0.3"

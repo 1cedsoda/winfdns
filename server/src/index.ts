@@ -2,7 +2,11 @@
 
 import dgram from "dgram";
 import { debugHex } from "./hex";
-import { createDnsResponse, sendResponse } from "./response";
+import {
+  createDnsResponse,
+  recursionAvailable,
+  sendResponse,
+} from "./response";
 import { handle } from "./handler";
 import { decodePacket, emptyResourceRecords, encodePacket } from "./protocol";
 import { Zones } from "./zone";
@@ -14,7 +18,7 @@ server.on("error", (err) => {
   server.close();
 });
 
-server.on("message", (msg, rinfo) => {
+server.on("message", async (msg, rinfo) => {
   // debugging
   console.log(`===> Request from ${rinfo.address}:${rinfo.port}`);
   console.log(debugHex(msg));
@@ -34,7 +38,7 @@ server.on("message", (msg, rinfo) => {
   }
 
   // handling
-  const res = handle(req);
+  const res = await handle(req);
   console.log(`<=== Response to ${rinfo.address}:${rinfo.port}`);
   console.log(debugHex(encodePacket(res)));
   console.log(res, "\n");
@@ -52,3 +56,18 @@ server.bind(53);
 
 // load zones
 Zones.getInstance();
+
+// debugging
+console.log("ROOT_DNS:", process.env.ROOT_DNS);
+console.log("RECURSION_AVAILABLE:", recursionAvailable);
+
+// SIGTERM & SIGINT
+
+const shutdown = () => {
+  console.log("Shutting down...");
+  server.close();
+  process.exit(0);
+};
+
+process.on("SIGTERM", shutdown);
+process.on("SIGINT", shutdown);

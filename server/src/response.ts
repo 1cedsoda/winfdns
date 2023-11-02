@@ -9,14 +9,20 @@ import { RemoteInfo, Socket } from "dgram";
 export function createDnsResponse(
   req: DnsPacket,
   resourceRecords: ResourceRecords,
-  rcode: ResponseCode
+  rcode: ResponseCode,
+  authoritativeAnswer?: boolean
 ): DnsPacket {
   return {
     header: {
       transactionId: req.header.transactionId,
       flags: {
-        ...req.header.flags,
         isResponse: true,
+        operation: req.header.flags.operation,
+        authoritativeAnswer: authoritativeAnswer || false,
+        truncated: false,
+        recursionDesired: req.header.flags.recursionDesired,
+        recursionAvailable: recursionAvailable,
+        z: 0,
         responseCode: rcode,
       },
       questions: req.header.questions,
@@ -43,3 +49,5 @@ export function sendResponse(
     }
   });
 }
+
+export const recursionAvailable = process.env.RECURSION_AVAILABLE === "true";
